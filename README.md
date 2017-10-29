@@ -1,4 +1,4 @@
-# covy
+# Covy
 
 ## Build Setup
 
