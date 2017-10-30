@@ -19,7 +19,7 @@ module.exports = {
 		 * @returns
 		 */
 		hello() {
-			return "Hello Scott";
+			return "Hello Scott1";
 		},
 
 		/**
