@@ -6,9 +6,7 @@ module.exports = {
 	/**
 	 * Default settings
 	 */
-	settings: {
-
-	},
+	settings: {},
 
 	/**
 	 * Actions
@@ -17,23 +15,23 @@ module.exports = {
 
 		/**
 		 * Say a 'Hello'
-		 * 
-		 * @returns 
+		 *
+		 * @returns
 		 */
 		hello() {
-			return "Hello Moleculer";
+			return "Hello Scott";
 		},
 
 		/**
 		 * Welcome a username
-		 * 
+		 *
 		 * @param {String} name - User name
 		 */
 		welcome: {
 			params: {
 				name: "string"
 			},
-			handler(ctx) {
+			handler( ctx ) {
 				return `Welcome, ${ctx.params.name}`;
 			}
 		}
@@ -42,16 +40,12 @@ module.exports = {
 	/**
 	 * Events
 	 */
-	events: {
-
-	},
+	events: {},
 
 	/**
 	 * Methods
 	 */
-	methods: {
-
-	},
+	methods: {},
 
 	/**
 	 * Service created lifecycle event handler
@@ -72,5 +66,5 @@ module.exports = {
 	 */
 	stopped() {
 
-	}	
+	}
 };
