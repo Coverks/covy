@@ -21,8 +21,8 @@
     "moleculer-repl": "^0.3.0"
   },
   "dependencies": {
+    "bull": "^3.3.5",
     "moleculer": "^0.11.0",
-    "moleculer-bull": "^0.1.1",
     "moleculer-web": "^0.5.0"
   },
   "engines": {
