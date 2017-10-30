@@ -8,13 +8,24 @@ module.exports = {
 
 	mixins: [QueueService()],
 
-	started() {
+	actions: {
 
-		let id = 1;
-		setInterval(() => {
+		test() {
+			this.create();
+		}
+
+	},
+
+	methods: {
+
+		create() {
+			var id = Math.floor((Math.random() * 5000) + 1);
 			this.logger.info("Add a new job. ID:", id);
-			this.createJob("sample.task", { id: id++, pid: process.pid });
-		}, 1000);
+                        this.createJob("sample.task", { id: id, pid: process.pid });
+		}
+	},
+
+	started() {
 
 		this.getQueue("sample.task").on("global:progress", (jobID, progress) => {
 			this.logger.info(`Job #${jobID} progress is ${progress}%`);
@@ -24,5 +35,12 @@ module.exports = {
 			this.logger.info(`Job #${job.id} completed!. Result:`, res);
 		});
 
+		this.getQueue("sample.task").on("global:paused", () => {
+			this.logger.info('Queue has been paused');
+                });
+
+		this.getQueue("sample.task").on("global:resumed", () => {
+			this.logger.info('Queue has been resumed');
+		});
 	}
 };

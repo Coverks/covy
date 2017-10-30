@@ -1,7 +1,10 @@
 "use strict";
 
+const QueueService = require("moleculer-bull");
+
 module.exports = {
 	name: "queues",
+	mixins: [QueueService()],
 
 	/**
 	 * Default settings
@@ -15,6 +18,18 @@ module.exports = {
 		log() {
 			return "Log";
 		},
+		test() {
+			this.broker.call("maker.test");
+			return "Testing";
+		},
+		pause() {
+			this.pauseQueue();
+			return "Pausing";
+		},
+		resume() {
+			this.resumeQueue();
+			return "Resuming";
+		}
 	},
 
 	/**
@@ -26,6 +41,14 @@ module.exports = {
 	 * Methods
 	 */
 	methods: {
+
+		pauseQueue() {
+			this.getQueue("sample.task").pause();
+		},
+
+		resumeQueue() {
+			this.getQueue("sample.task").resume();
+		}
 	},
 
 	/**
