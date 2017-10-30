@@ -1,7 +1,5 @@
 "use strict";
 
-var Queue = require( 'bull' )
-
 module.exports = {
 	name: "queues",
 
@@ -14,17 +12,7 @@ module.exports = {
 	 * Actions
 	 */
 	actions: {
-
-		/**
-		 * Log activity
-		 *
-		 * @returns
-		 */
 		log() {
-
-			var queue = new Queue( "test concurrent queue" );
-			console.log( queue.getJobCounts() );
-
 			return "Log";
 		},
 	},
