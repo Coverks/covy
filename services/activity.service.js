@@ -1,10 +1,10 @@
 "use strict";
 
-const QueueService = require( "moleculer-bull" );
+const Queue = require( 'bull' );
+const cluster = require( 'cluster' );
 
 module.exports = {
 	name: "activity",
-	mixins: [ QueueService() ],
 
 	/**
 	 * Default settings
@@ -37,16 +37,31 @@ module.exports = {
 	 */
 	methods: {
 		testJob() {
-			var id = Math.floor((Math.random() * 2000) + 1);
-			this.createJob( "job.send", { id: id, pid: process.pid } );
+			var numWorkers = 8;
+			var queue = new Queue( "test concurrent queue" );
 
-			this.getQueue( "job.send" ).on( "global:progress", ( jobID, progress ) => {
-				this.logger.info( `Job #${jobID} progress is ${progress}%` );
-			} );
+			if ( cluster.isMaster ) {
+				for ( var i = 0; i < numWorkers; i ++ ) {
+					cluster.fork();
+				}
 
-			this.getQueue( "job.send" ).on( "global:completed", ( job, res ) => {
-				this.logger.info( `Job #${job.id} completed!. Result:`, res );
-			} );
+				cluster.on( 'online', function ( worker ) {
+					// Lets create a few jobs for the queue workers
+					for ( var i = 0; i < 500; i ++ ) {
+						queue.add( { foo: 'bar' } );
+					}
+					;
+				} );
+
+				cluster.on( 'exit', function ( worker, code, signal ) {
+					console.log( 'worker ' + worker.process.pid + ' died' );
+				} );
+			} else {
+				queue.process( function ( job, jobDone ) {
+					console.log( "Job done by worker", cluster.worker.id, job.id );
+					jobDone();
+				} );
+			}
 		}
 	},
 
