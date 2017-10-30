@@ -37,7 +37,8 @@ module.exports = {
 	 */
 	methods: {
 		testJob() {
-			this.createJob( "job.send", { id: id++, pid: process.pid } );
+			var id = Math.floor((Math.random() * 2000) + 1);
+			this.createJob( "job.send", { id: i, pid: process.pid } );
 
 			this.getQueue( "job.send" ).on( "global:progress", ( jobID, progress ) => {
 				this.logger.info( `Job #${jobID} progress is ${progress}%` );
