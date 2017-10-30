@@ -14,6 +14,7 @@ if ( cluster.isMaster ) {
 		// Lets create a few jobs for the queue workers
 		for ( var i = 0; i < 500; i ++ ) {
 			queue.add( { foo: 'bar' } );
+			console.log( "Job added " + i );
 		}
 		;
 	} );
