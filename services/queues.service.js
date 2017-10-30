@@ -1,7 +1,9 @@
 "use strict";
 
+var Queue = require( 'bull' )
+
 module.exports = {
-	name: "activity",
+	name: "queues",
 
 	/**
 	 * Default settings
@@ -19,6 +21,10 @@ module.exports = {
 		 * @returns
 		 */
 		log() {
+
+			var queue = new Queue( "test concurrent queue" );
+			console.log( queue.getJobCounts() );
+
 			return "Log";
 		},
 	},

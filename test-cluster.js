@@ -1,4 +1,4 @@
-var Queue = require( 'bull' )
+var Queue = require( 'bull' );
 var cluster = require( 'cluster' );
 
 var numWorkers = 4;
@@ -27,7 +27,7 @@ if ( cluster.isMaster ) {
 	queue.process( function ( job, jobDone ) {
 
 		if ( 1 === cluster.worker.id ) {
-			throw new Error('some unexpected error');
+			throw new Error( 'some unexpected error' );
 		}
 
 		console.log( "Job done by worker", cluster.worker.id, job.id );
