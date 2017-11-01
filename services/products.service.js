@@ -3,7 +3,7 @@
 const QueueService = require("moleculer-bull");
 
 module.exports = {
-	name: "queues",
+	name: "products",
 	mixins: [QueueService()],
 
 	/**
@@ -15,25 +15,21 @@ module.exports = {
 	 * Actions
 	 */
 	actions: {
-		log() {
-			return "Log";
-		},
-		test() {
-			this.broker.call("maker.test");
-			return "Testing";
-		},
+
 		pause() {
 			this.pauseQueue();
 			return "Pausing";
 		},
+
 		resume() {
 			this.resumeQueue();
 			return "Resuming";
 		},
+
 		update: {
 			handler(ctx) {
-				const dataToBeHandled  = ctx.params;
-				this.broker.call("maker.product", dataToBeHandled );
+				const productData  = ctx.params;
+				this.broker.call("productmaker.update", productData );
 			}
 		},
 	},
@@ -49,11 +45,11 @@ module.exports = {
 	methods: {
 
 		pauseQueue() {
-			this.getQueue("sample.task").pause();
+			this.getQueue("products.task").pause();
 		},
 
 		resumeQueue() {
-			this.getQueue("sample.task").resume();
+			this.getQueue("products.task").resume();
 		}
 	},
 
