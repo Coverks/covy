@@ -12,6 +12,11 @@ module.exports = {
 
 		test() {
 			this.create();
+		},
+
+		product(ctx) {
+			console.log( ctx.params );
+			this.createProduct(ctx.params);
 		}
 
 	},
@@ -22,6 +27,11 @@ module.exports = {
 			var id = Math.floor((Math.random() * 5000) + 1);
 			this.logger.info("Add a new job. ID:", id);
                         this.createJob("sample.task", { id: id, pid: process.pid });
+		},
+
+		createProduct(prodData) {
+			this.logger.info("Product added.");
+			this.createJob("sample.task", prodData);
 		}
 	},
 

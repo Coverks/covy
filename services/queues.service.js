@@ -29,7 +29,13 @@ module.exports = {
 		resume() {
 			this.resumeQueue();
 			return "Resuming";
-		}
+		},
+		update: {
+			handler(ctx) {
+				const dataToBeHandled  = ctx.params;
+				this.broker.call("maker.product", dataToBeHandled );
+			}
+		},
 	},
 
 	/**
