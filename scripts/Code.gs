@@ -6,6 +6,104 @@ var DEFAULT_FORMAT    = FORMAT_PRETTY;
 var DEFAULT_LANGUAGE  = LANGUAGE_JS;
 var DEFAULT_STRUCTURE = STRUCTURE_LIST;
 
+function customOnEdit(e){
+  
+  var range    = e.range;
+  var row      = range.getRow();
+  
+  if ( 1 == row ) {
+    return; 
+  }
+  
+  var oldValue = e.oldValue;
+  
+  var today = new Date();
+  var date  = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+  var time  = today.getHours() + ":" + ( today.getMinutes() < 10 ? '0' : '' ) + today.getMinutes() + ":" + today.getSeconds();
+  var date  = date + ' ' + time;
+  
+  var noteText = 'Last Modified: ' + "\n" + date;
+  
+  if ( null != oldValue ) {
+    noteText += "\n\n" + 'Previous Data: ' + "\n" + oldValue;
+  }
+  
+  var previousNote = range.getNote();
+  
+  if ( null != previousNote && null != oldValue ) {
+    range.setNote(noteText);
+  }
+    
+  syncDialog(range);
+}
+
+function syncDialog(range) {
+  
+  var cellRow = range.getRow();
+  
+  if ( 1 == cellRow ) {
+    return;
+  }
+  
+  var ui = SpreadsheetApp.getUi();
+  var response = ui.alert('Would you like to sync data?', ui.ButtonSet.YES_NO);
+
+  if (response == ui.Button.YES) {
+    exportSheet(cellRow);
+  }
+}
+
+function onOpen() {
+  
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  var menuEntries = [
+    {name: "Sync Active Sheet", functionName: "exportSheet"},
+    {name: "Clear Notes", functionName: "clearNotes"},
+  ];
+    
+  ss.addMenu("Sync", menuEntries);
+}
+
+function clearNotes() {
+    
+  var ss       = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet    = ss.getActiveSheet();
+
+  var maxRows    = sheet.getMaxRows();
+  var maxColumns = sheet.getMaxColumns();
+  var range  = sheet.getRange(1, 1, maxRows, maxColumns);
+    
+  range.clearNote();
+}
+    
+function exportSheet(cellRow) {
+    
+  Logger.log( cellRow );
+    
+  options = {};
+  options.language  = DEFAULT_LANGUAGE;
+  options.format    = DEFAULT_FORMAT;
+  options.structure = DEFAULT_STRUCTURE;
+    
+  var ss       = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet    = ss.getActiveSheet();
+  var rowsData = getRowsData_(sheet, options, cellRow);
+    
+  if ( undefined == cellRow ) {  
+    rowsData.forEach(function( row, index ) {
+      var json = makeJSON_(row, options);
+      syncMasterSheet( json );
+    });  
+  } else {
+    rowsData = rowsData[0];
+    var json = makeJSON_(rowsData, options);
+    syncMasterSheet( json );
+  }
+    
+  return;
+}
+    
 function syncMasterSheet(excelData) {
   
   var urlAPI = 'http://coverks-covy.eu.ngrok.io/products/update';
@@ -17,36 +115,6 @@ function syncMasterSheet(excelData) {
   };
 
   UrlFetchApp.fetch( urlAPI, options );
-}
-
-function onOpen() {
-  
-  var ss = SpreadsheetApp.getActiveSpreadsheet();
-  
-  var menuEntries = [
-    {name: "Current Sheet", functionName: "exportSheet"},
-  ];
-    
-  ss.addMenu("Sync", menuEntries);
-}
-
-function exportSheet(e) {
-    
-  options = {};
-  options.language  = DEFAULT_LANGUAGE;
-  options.format    = DEFAULT_FORMAT;
-  options.structure = DEFAULT_STRUCTURE;
-    
-  var ss       = SpreadsheetApp.getActiveSpreadsheet();
-  var sheet    = ss.getActiveSheet();
-  var rowsData = getRowsData_(sheet, options);
-  
-  rowsData.forEach(function( row, index ) {
-    var json     = makeJSON_(row, options);
-    syncMasterSheet(json);
-  });
-    
-  return;
 }
 
 function makeJSON_(object, options) {
@@ -62,11 +130,20 @@ function makeJSON_(object, options) {
 //   - columnHeadersRowIndex: specifies the row number where the column names are stored.
 //       This argument is optional and it defaults to the row immediately above range; 
 // Returns an Array of objects.
-function getRowsData_(sheet, options) {
+function getRowsData_(sheet, options, cellRow) {
+    
+  var startRow   = sheet.getFrozenRows()+1;
+  var maxRows    = sheet.getMaxRows();
+  var maxColumns = sheet.getMaxColumns();
+
+  if ( undefined !== cellRow ) {
+    startRow = cellRow;
+    maxRows = 1;
+  }
     
   var headersRange = sheet.getRange(1, 1, sheet.getFrozenRows(), sheet.getMaxColumns());
   var headers      = headersRange.getValues()[0];
-  var dataRange    = sheet.getRange(sheet.getFrozenRows()+1, 1, sheet.getMaxRows(), sheet.getMaxColumns());
+  var dataRange    = sheet.getRange(startRow, 1, maxRows, maxColumns);
   var objects      = getObjects_(dataRange.getValues(), normalizeHeaders_(headers));
   
   return objects;
@@ -168,7 +245,7 @@ function normalizeHeader_(header) {
       continue;
     }
     
-    if (!isAlnum_(letter)) {
+    if (!isAlnum_(letter) && '_' != letter) {
       continue;
     }
     
@@ -230,4 +307,3 @@ function arrayTranspose_(data) {
 
   return ret;
 }
-
