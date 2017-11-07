@@ -32,6 +32,19 @@ module.exports = {
 				this.broker.call("productmaker.update", productData );
 			}
 		},
+
+		db() {
+			this.broker.call("mongodb.create", {
+    				title: "My first post",
+    				content: "Lorem ipsum...",
+    				votes: 0
+			});
+		},
+
+		list() {
+			this.broker.call("mongodb.find").then(console.log);
+		}
+
 	},
 
 	/**
