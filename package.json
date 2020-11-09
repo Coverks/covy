@@ -15,7 +15,7 @@
   ],
   "author": "",
   "devDependencies": {
-    "eslint": "4.10.0",
+    "eslint": "7.13.0",
     "jest": "21.2.1",
     "jest-cli": "21.2.1",
     "moleculer-repl": "^0.3.0"
